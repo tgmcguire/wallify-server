@@ -1,7 +1,7 @@
 // Wallify.me Server
 
 var main = {};
-main.url = "http://127.0.0.1:9898/";
+main.url = "http://wallify.herokuapp.com/";
 
 var fs			= require('fs');
 var express     = require('express');
