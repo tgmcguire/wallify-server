@@ -11,7 +11,7 @@ var bodyParser  = require('body-parser');
 var async       = require('async');
 var request 	= require('request');
 var shuffle     = require('shuffle-array');
-var gm          = require('gm');
+var gm          = require('gm'), imageMagick = gm.subClass({ imageMagick: true });
 var download    = require('download-file');
 var stathat     = require('stathat');
 var colors      = require('colors');
@@ -155,7 +155,7 @@ router.route('/make_wallpaper')
             i.numRequired = i.coversWide*i.coversTall;
 
             sendLog("[WALLPAPER]".white.bgGreen+" Working on wallpaper for "+(req.query.username).cyan+"'s playlist "+(req.query.playlistname).cyan+":");
-            sendLog("[WALLPAPER]".white.bgGreen+" "+(req.query.resolution).cyan+", "+(i.coversWide).cyan+" covers wide, "+(i.coversWide*i.coversTall).cyan+" covers used");
+            sendLog("[WALLPAPER]".white.bgGreen+" "+(req.query.resolution).cyan+", "+(i.coversWide).cyan+" covers wide");
 
             stathat.trackEZCount("8jT6DHDr20ceCYcn", "wallpapers generated", 1, function(status, json) {});
             stathat.trackEZValue("8jT6DHDr20ceCYcn", "number of covers wide", i.coversWide, function(status, json) {});
@@ -166,7 +166,7 @@ router.route('/make_wallpaper')
             } else {
                 covers = shuffle(covers);
 
-                gm(i.width, i.height, "#000000")
+                imageMagick(i.width, i.height, "#000000")
                 .write(i.image, function (err) {
                     async.forever(function(next) {
                         i.thisCoverID = Math.floor((Math.random() * 1000000000000) + 1);
@@ -175,10 +175,10 @@ router.route('/make_wallpaper')
                         download(covers[i.thisCover], {directory: __dirname+"/tmp", filename: "c_"+i.thisCoverID+".jpg"}, function(err) {
                             if (err) throw err;
 
-                            gm(i.thisCoverFilename)
+                            imageMagick(i.thisCoverFilename)
                             .resize(i.coverSize, i.coverSize, "!")
                             .write(i.thisCoverFilename, function(err) {
-                                gm(i.image)
+                                imageMagick(i.image)
                                 .composite(i.thisCoverFilename)
                                 .geometry('+'+(i.numX*i.coverSize)+'+'+(i.numY*i.coverSize))
                                 .write(__dirname+"/tmp/"+i.num+".jpg", function(err) {
